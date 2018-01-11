@@ -160,11 +160,12 @@ public class DataListAdapter extends BaseAdapter<Data> {
         private void setUpThumbnail(ImageView iv, Data data) {
 
             String imageBaseUrl = "http://d3snwcirvb4r88.cloudfront.net/images/";
+            String objectId = data.getId();
             boolean setThumbvail = true;
             if (data.getPhotos().size()!=0) {
                 for (int i = 0; i < data.getPhotos().size() && setThumbvail; i++) {
                     setThumbvail =false;
-                    String thumbnailUrl = imageBaseUrl + data.getPhotos().get(i).getImagesMap().getThumbnail();
+                    String thumbnailUrl = imageBaseUrl +objectId+"/"+ data.getPhotos().get(i).getImagesMap().getThumbnail();
                     Log.d("thumbnail", thumbnailUrl);
                     if (!TextUtils.isEmpty(thumbnailUrl)) {
                         Glide.with(iv.getContext())
