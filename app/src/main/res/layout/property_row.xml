@@ -47,7 +47,7 @@
                     <TextView
                         android:paddingLeft="5dp"
                         android:textStyle="bold"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:text="2 BHK in BTM Layout 2nd stage"
                         android:id="@+id/tv_description"
                         android:layout_width="wrap_content"
@@ -71,6 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <ImageView
+                        android:background="@drawable/rectangle"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_likes_off"
                         android:layout_width="wrap_content"
@@ -125,7 +126,7 @@
                      android:layout_height="match_parent">
 
                      <TextView
-                         android:textSize="18sp"
+                         android:textSize="15sp"
                          android:textStyle="bold"
                          android:text="Rs 8000"
                          android:id="@+id/tv_price"
@@ -147,6 +148,7 @@
                      android:layout_height="match_parent">
 
                      <TextView
+                         android:textSize="12sp"
                          android:text="Semi Furnished"
                          android:id="@+id/tv_furnished"
                          android:layout_gravity="center"
@@ -161,6 +163,7 @@
                      android:layout_height="match_parent">
 
                      <TextView
+                         android:textSize="13sp"
                          android:text="700 Sq.ft"
                          android:id="@+id/tv_area"
                          android:layout_gravity="center"

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.nagendra.android.loadingviewdemo.R;
 import com.nagendra.android.loadingviewdemo.Utility.AppConfig;
+import com.nagendra.android.loadingviewdemo.activities.MainActivity;
 import com.nagendra.android.loadingviewdemo.adapter.BaseAdapter;
 import com.nagendra.android.loadingviewdemo.adapter.DataListAdapter;
 import com.nagendra.android.loadingviewdemo.network.models.response.ApiResponse;
@@ -23,7 +23,6 @@ import com.nagendra.android.loadingviewdemo.network.rest.RetrofitAPInterface;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -32,9 +31,10 @@ import retrofit2.Retrofit;
 import static android.content.ContentValues.TAG;
 
 public class DataFragment extends Fragment implements BaseAdapter.OnItemClickListener {
-    public static final int PAGE_SIZE = 21;
+    public int PAGE_SIZE = 21;
     private int currentPage = 1;
     private List<Data> dataList = new ArrayList<>();
+    private List<Data> data, dataNext, filteredData;
 
     private RetrofitAPInterface retrofitAPIService;
     private RecyclerView recyclerView;
@@ -42,6 +42,8 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
     private LinearLayoutManager layoutManager;
     private boolean isLoading = false;
     private boolean isLastPage = false;
+    private ArrayList<String> apartmentFilterList = new ArrayList<>();
+    private ArrayList<String> propertyFilterList = new ArrayList<>();
 
     public DataFragment() {
     }
@@ -63,6 +65,14 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_data, container, false);
         init();
+        data = new ArrayList<>();
+        dataNext = new ArrayList<>();
+        filteredData = new ArrayList<>();
+
+        apartmentFilterList = getArguments().getStringArrayList("apartment_type");
+        propertyFilterList = getArguments().getStringArrayList("property_type");
+        Log.d("filter_list",apartmentFilterList+" "+propertyFilterList);
+
         recyclerView = view.findViewById(R.id.recycler_view);
         return view;
     }
@@ -76,7 +86,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
         dataListAdapter = new DataListAdapter();
         dataListAdapter.setOnItemClickListener(this);
         dataListAdapter.setOnReloadClickListener(this);
-        recyclerView.setItemAnimator(new SlideInUpAnimator());
+//        recyclerView.setItemAnimator(new SlideInUpAnimator());
 //        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(dataListAdapter);
         recyclerView.addOnScrollListener(recyclerViewOnScrollListener);
@@ -118,14 +128,33 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                             Log.d(TAG, "Data: " + response.body().getData());
 
                             ApiResponse apiData = response.body();
-
                             if (apiData != null) {
-                                List<Data> data = apiData.getData();
+                                data = apiData.getData();
 //                                String thumbnail = data.get(0).getThumbnail();
                                 if (data != null) {
-                                    if(data.size()>0)
+                                    if(data.size()>0) {
+                                        Log.d("filterData", "inside");
+//                                        String charString ="BHK3";
+                                        if (apartmentFilterList.isEmpty()) {
+                                            Log.d("filterData", "inside1");
+                                            filteredData = data;
+                                        } else {
+                                            List<Data> filteredList = new ArrayList<>();
+                                            Log.d("filterData", "inside2");
+                                            for (Data newData : data) {
+                                                for (int k=0; k<apartmentFilterList.size();k++) {
+                                                    String charString = apartmentFilterList.get(k);
+                                                    if (newData.getType().equalsIgnoreCase(charString)) {
+                                                        filteredList.add(newData);
+                                                    }
+                                                }
+                                            }
+                                            filteredData = filteredList;
+                                        }
+                                    }
 //                                        dataList.addAll(data);
-                                        dataListAdapter.addAll(data);
+                                        PAGE_SIZE = filteredData.size();
+                                        dataListAdapter.addAll(filteredData);
 
                                     if (data.size() >= PAGE_SIZE) {
                                         dataListAdapter.addFooter();
@@ -188,14 +217,35 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                                 return;
                             }
 
-                            ApiResponse videosEnvelope = response.body();
-                            if (videosEnvelope != null) {
-                                List<Data> videos = videosEnvelope.getData();
-                                if (videos != null) {
-                                    if(videos.size()>0)
-                                        dataListAdapter.addAll(videos);
+                            ApiResponse apiResponseNext = response.body();
+                            if (apiResponseNext != null) {
+                             dataNext = apiResponseNext.getData();
+                                if (dataNext != null) {
+                                    if(data.size()>0) {
+                                        Log.d("filterData", "inside");
+//                                        String charString = "";
+                                        if (apartmentFilterList.isEmpty()) {
+                                            Log.d("filterData", "inside1");
+                                            filteredData = data;
+                                        } else {
+                                            List<Data> filteredList = new ArrayList<>();
+                                            Log.d("filterData", "inside2");
+                                            for (int k=0;k<apartmentFilterList.size();k++){
+                                                String charString = apartmentFilterList.get(k);
+                                            for (Data newData : data) {
+                                                if (newData.getType().equalsIgnoreCase(charString)) {
+                                                    filteredList.add(newData);
+                                                }
+                                            }
+                                            }
+                                            filteredData = filteredList;
+                                        }
+                                    }
+//                                    dataList.addAll(data);
+                                    PAGE_SIZE = filteredData.size();
+                                    dataListAdapter.addAll(filteredData);
 
-                                    if(videos.size() >= PAGE_SIZE){
+                                    if(dataNext.size() >= PAGE_SIZE){
                                         dataListAdapter.addFooter();
                                     } else {
                                         isLastPage = true;
@@ -238,9 +288,9 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
     };
 
     private void loadMoreItems() {
-        Log.d("load","more");
         isLoading = true;
         currentPage += 1;
+        Log.d("load","more "+currentPage);
         findDataNextFetchCallback();
     }
 
@@ -259,5 +309,11 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
 
     private void removeListeners(){
         recyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ((MainActivity) getActivity()).values("callVerify");
     }
 }

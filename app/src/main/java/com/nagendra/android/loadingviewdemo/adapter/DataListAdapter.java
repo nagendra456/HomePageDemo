@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,8 +17,7 @@ import com.bumptech.glide.Glide;
 import com.nagendra.android.loadingviewdemo.R;
 import com.nagendra.android.loadingviewdemo.fragment.DataFragment;
 import com.nagendra.android.loadingviewdemo.network.models.response.Data;
-import com.nagendra.android.loadingviewdemo.network.models.response.ImageMap;
-import com.nagendra.android.loadingviewdemo.network.models.response.Photos;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -111,6 +112,7 @@ public class DataListAdapter extends BaseAdapter<Data> {
     public void setOnReloadClickListener(DataFragment dataFragment) {
     }
 
+
     public class DataViewHolder extends RecyclerView.ViewHolder  {
         private ImageView thumbnail;
 
@@ -134,9 +136,9 @@ public class DataListAdapter extends BaseAdapter<Data> {
         private void bind(Data data){
             setUpTitle(_description, data);
             setUpSubtitle(_priceTag, data);
-            setUpThumbnail(_thumbnailImage, data);
             setUpFurnishedText(_furnished, data);
             setUpArea(_areaSqFt, data);
+            setUpThumbnail(_thumbnailImage, data);
 
             int adapterPos = getAdapterPosition();
             ViewCompat.setTransitionName(_priceTag,"myTransition"+adapterPos);
@@ -157,27 +159,6 @@ public class DataListAdapter extends BaseAdapter<Data> {
             }
         }
 
-        private void setUpThumbnail(ImageView iv, Data data) {
-
-            String imageBaseUrl = "http://d3snwcirvb4r88.cloudfront.net/images/";
-            String objectId = data.getId();
-            boolean setThumbvail = true;
-            if (data.getPhotos().size()!=0) {
-                for (int i = 0; i < data.getPhotos().size() && setThumbvail; i++) {
-                    setThumbvail =false;
-                    String thumbnailUrl = imageBaseUrl +objectId+"/"+ data.getPhotos().get(i).getImagesMap().getThumbnail();
-                    Log.d("thumbnail", thumbnailUrl);
-                    if (!TextUtils.isEmpty(thumbnailUrl)) {
-                        Glide.with(iv.getContext())
-                                .load(thumbnailUrl)
-                                .placeholder(R.drawable.rectangle)
-//                                .error(R.drawable.ic_error)
-                                .into(iv);
-                    }
-                }
-            }
-        }
-
         private void setUpFurnishedText(TextView tv, Data data) {
             String formattedDuration = data.getFurnishing();
             if(!TextUtils.isEmpty(formattedDuration))
@@ -189,6 +170,27 @@ public class DataListAdapter extends BaseAdapter<Data> {
             if(!TextUtils.isEmpty(sqft))
                 tv.setText(sqft);
         }
+
+    private void setUpThumbnail(ImageView iv, Data data) {
+
+        String imageBaseUrl = "http://d3snwcirvb4r88.cloudfront.net/images/";
+        String objectId = data.getId();
+        boolean setThumbnail = true;
+        if (data.getPhotos().size()!=0) {
+            for (int i = 0; i < data.getPhotos().size() && setThumbnail; i++) {
+                setThumbnail =false;
+                String thumbnailUrl = imageBaseUrl +objectId+"/"+ data.getPhotos().get(i).getImagesMap().getThumbnail();
+                Log.d("thumbnail", thumbnailUrl);
+                if (!TextUtils.isEmpty(thumbnailUrl)) {
+                    Picasso.with(iv.getContext())
+                            .load(thumbnailUrl)
+//                            .placeholder(R.drawable.rectangle)
+//                                .error(R.drawable.ic_error)
+                            .into(iv);
+                }
+            }
+        }
+    }
 
 
     }
