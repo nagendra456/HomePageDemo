@@ -173,6 +173,7 @@ public class DataListAdapter extends BaseAdapter<Data> {
     private void setUpThumbnail(ImageView iv, Data data) {
 
         String imageBaseUrl = "http://d3snwcirvb4r88.cloudfront.net/images/";
+        Log.d("image","fetching");
         String objectId = data.getId();
         boolean setThumbnail = true;
         if (data.getPhotos().size()!=0) {
