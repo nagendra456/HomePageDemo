@@ -80,9 +80,10 @@ public class DataListAdapter extends BaseAdapter<Data> {
 
     @Override
     protected void bindItemViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-
         final DataViewHolder holder = (DataViewHolder) viewHolder;
         final Data data = getItem(position);
+        String namePrint = data.getPropertyTitle();
+        Log.d("name_print",namePrint);
         if (data != null) {
             holder.bind(data);
         }
@@ -107,9 +108,6 @@ public class DataListAdapter extends BaseAdapter<Data> {
     @Override
     public void addFooter() {
 
-    }
-
-    public void setOnReloadClickListener(DataFragment dataFragment) {
     }
 
 
@@ -146,6 +144,7 @@ public class DataListAdapter extends BaseAdapter<Data> {
 
         private void setUpTitle(TextView tv, Data data) {
             String name = data.getTitle();
+//            Log.d("name",name);
             if (!TextUtils.isEmpty(name)) {
                 tv.setText(name);
             }
@@ -166,7 +165,7 @@ public class DataListAdapter extends BaseAdapter<Data> {
         }
 
         private void setUpArea(TextView tv, Data data) {
-            String sqft = "4500"+"Sq.ft";
+            String sqft = data.getPropertySize()+" Sq.ft";
             if(!TextUtils.isEmpty(sqft))
                 tv.setText(sqft);
         }
@@ -179,8 +178,8 @@ public class DataListAdapter extends BaseAdapter<Data> {
         if (data.getPhotos().size()!=0) {
             for (int i = 0; i < data.getPhotos().size() && setThumbnail; i++) {
                 setThumbnail =false;
-                String thumbnailUrl = imageBaseUrl +objectId+"/"+ data.getPhotos().get(i).getImagesMap().getThumbnail();
-                Log.d("thumbnail", thumbnailUrl);
+                String thumbnailUrl = imageBaseUrl +objectId+"/"+ data.getPhotos().get(i).getImagesMap().getLarge();
+//                Log.d("thumbnail", thumbnailUrl);
                 if (!TextUtils.isEmpty(thumbnailUrl)) {
                     Picasso.with(iv.getContext())
                             .load(thumbnailUrl)

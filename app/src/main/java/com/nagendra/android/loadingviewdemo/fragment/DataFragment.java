@@ -3,7 +3,6 @@ package com.nagendra.android.loadingviewdemo.fragment;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,7 +14,9 @@ import com.nagendra.android.loadingviewdemo.R;
 import com.nagendra.android.loadingviewdemo.Utility.AppConfig;
 import com.nagendra.android.loadingviewdemo.activities.MainActivity;
 import com.nagendra.android.loadingviewdemo.adapter.BaseAdapter;
+import com.nagendra.android.loadingviewdemo.adapter.DataAdapter;
 import com.nagendra.android.loadingviewdemo.adapter.DataListAdapter;
+import com.nagendra.android.loadingviewdemo.network.models.request.Property;
 import com.nagendra.android.loadingviewdemo.network.models.response.ApiResponse;
 import com.nagendra.android.loadingviewdemo.network.models.response.Data;
 import com.nagendra.android.loadingviewdemo.network.rest.RetrofitAPI;
@@ -23,25 +24,29 @@ import com.nagendra.android.loadingviewdemo.network.rest.RetrofitAPInterface;
 
 import java.util.ArrayList;
 import java.util.List;
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
+
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import static android.content.ContentValues.TAG;
 
-public class DataFragment extends Fragment implements BaseAdapter.OnItemClickListener {
+public class DataFragment extends android.support.v4.app.Fragment implements BaseAdapter.OnItemClickListener {
     public int PAGE_SIZE = 21;
     private int currentPage = 1;
-    private List<Data> dataList = new ArrayList<>();
-    private List<Data> data, dataNext, filteredData;
+    private List<com.nagendra.android.loadingviewdemo.network.models.request.Property> dataList = new ArrayList<com.nagendra.android.loadingviewdemo.network.models.request.Property>();
+    private List<Data> data, dataNext, filteredData, filteredDataListNext;
 
     private RetrofitAPInterface retrofitAPIService;
     private RecyclerView recyclerView;
     private DataListAdapter dataListAdapter;
     private LinearLayoutManager layoutManager;
+    private DataAdapter dataAdapter;
     private boolean isLoading = false;
     private boolean isLastPage = false;
+    private Unbinder unbinder;
     private ArrayList<String> apartmentFilterList = new ArrayList<>();
     private ArrayList<String> propertyFilterList = new ArrayList<>();
 
@@ -64,10 +69,13 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_data, container, false);
+        unbinder = ButterKnife.bind(this, view);
+
         init();
         data = new ArrayList<>();
         dataNext = new ArrayList<>();
         filteredData = new ArrayList<>();
+        filteredDataListNext = new ArrayList<>();
 
         apartmentFilterList = getArguments().getStringArrayList("apartment_type");
         propertyFilterList = getArguments().getStringArrayList("property_type");
@@ -83,13 +91,17 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
 
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        dataListAdapter = new DataListAdapter();
-        dataListAdapter.setOnItemClickListener(this);
-        dataListAdapter.setOnReloadClickListener(this);
-//        recyclerView.setItemAnimator(new SlideInUpAnimator());
-//        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(dataListAdapter);
-        recyclerView.addOnScrollListener(recyclerViewOnScrollListener);
+//        dataListAdapter = new DataListAdapter();
+//        dataListAdapter.setOnItemClickListener(this);
+//        dataListAdapter.setOnReloadClickListener(this);
+////        recyclerView.setItemAnimator(new SlideInUpAnimator());
+////        recyclerView.setItemAnimator(new DefaultItemAnimator());
+//        recyclerView.setAdapter(dataListAdapter);
+//        recyclerView.addOnScrollListener(recyclerViewOnScrollListener);
+
+//        dataAdapter = new DataAdapter(filteredData, recyclerView.getContext());
+//        recyclerView.setAdapter(dataAdapter);
+//        recyclerView.setHasFixedSize(true);
 
         findDataFirstFetchCallback();
 
@@ -128,6 +140,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                             Log.d(TAG, "Data: " + response.body().getData());
 
                             ApiResponse apiData = response.body();
+                            Log.d("apires",apiData.toString());
                             if (apiData != null) {
                                 data = apiData.getData();
 //                                String thumbnail = data.get(0).getThumbnail();
@@ -150,14 +163,27 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                                                 }
                                             }
                                             filteredData = filteredList;
+
                                         }
                                     }
+                                    com.nagendra.android.loadingviewdemo.network.models.request.Property dataPart = new Property();
+                                    for (int i =0; i<data.size();i++){
+                                        dataPart.setPropertyName(filteredData.get(i).getPropertyTitle());
+                                        dataPart.setPropertySize(filteredData.get(i).getPropertySize());
+                                        dataPart.setFurnished(filteredData.get(i).getFurnishing());
+                                        dataList.add(dataPart);
+                                    }
+                                    Log.d("datalist",dataList.toString());
 //                                        dataList.addAll(data);
-                                        PAGE_SIZE = filteredData.size();
-                                        dataListAdapter.addAll(filteredData);
 
+                                    Log.d("filter1",dataList.toString());
+                                        PAGE_SIZE = filteredData.size();
+//                                        dataListAdapter.addAll(dataList);
                                     if (data.size() >= PAGE_SIZE) {
-                                        dataListAdapter.addFooter();
+                                        dataAdapter = new DataAdapter(dataList, recyclerView.getContext());
+                                        recyclerView.setAdapter(dataAdapter);
+                                        recyclerView.addOnScrollListener(recyclerViewOnScrollListener);
+//                                        dataListAdapter.addFooter();
                                     } else {
                                         isLastPage = true;
                                     }
@@ -181,8 +207,10 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
         new AsyncTask<String, String, Response<ApiResponse>>() {
             @Override
             protected Response<ApiResponse> doInBackground(String... strings) {
+                String nextUrl = "?lat_lng=12.9279232,77.6271078&rent=0,500000&travelTime=30&pageNo="+currentPage;
+                Log.d("urlNext",nextUrl);
                 Response<ApiResponse> response = null;
-                Call<ApiResponse> retrofitResponse = retrofitAPIService.nextApiResponse();
+                Call<ApiResponse> retrofitResponse = retrofitAPIService.nextApiResponse(nextUrl);
                 try {
                     response = retrofitResponse.execute();
                 } catch (Exception e) {
@@ -202,7 +230,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                             Log.d(TAG, "Status Message: " + response.body().getMessage());
                             Log.d(TAG, "Data: " + response.body().getData());
 
-                            dataListAdapter.removeFooter();
+//                            dataListAdapter.removeFooter();
                             isLoading = false;
 
                             if (!response.isSuccessful()) {
@@ -218,6 +246,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                             }
 
                             ApiResponse apiResponseNext = response.body();
+                            Log.d("apiresNext",apiResponseNext.toString());
                             if (apiResponseNext != null) {
                              dataNext = apiResponseNext.getData();
                                 if (dataNext != null) {
@@ -226,7 +255,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
 //                                        String charString = "";
                                         if (apartmentFilterList.isEmpty()) {
                                             Log.d("filterData", "inside1");
-                                            filteredData = data;
+                                            filteredDataListNext = data;
                                         } else {
                                             List<Data> filteredList = new ArrayList<>();
                                             Log.d("filterData", "inside2");
@@ -238,15 +267,26 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                                                 }
                                             }
                                             }
-                                            filteredData = filteredList;
+                                            filteredDataListNext = filteredList;
                                         }
                                     }
+                                    com.nagendra.android.loadingviewdemo.network.models.request.Property dataPart = new com.nagendra.android.loadingviewdemo.network.models.request.Property();
+                                    for (int i =0; i<data.size();i++){
+                                        dataPart.setPropertyName(filteredDataListNext.get(i).getPropertyTitle());
+                                        dataPart.setPropertySize(filteredDataListNext.get(i).getPropertySize());
+                                        dataPart.setFurnished(filteredDataListNext.get(i).getFurnishing());
+                                        dataList.add(dataPart);
+                                    }
 //                                    dataList.addAll(data);
-                                    PAGE_SIZE = filteredData.size();
-                                    dataListAdapter.addAll(filteredData);
-
+                                    Log.d("filter2",dataPart.toString());
+                                    PAGE_SIZE = filteredDataListNext.size();
+//                                    dataListAdapter.addAll(data);
                                     if(dataNext.size() >= PAGE_SIZE){
-                                        dataListAdapter.addFooter();
+//                                        dataAdapter.swapItems(filteredDataListNext);
+//                                        dataAdapter.notifyDataSetChanged();
+                                        dataAdapter = new DataAdapter(dataList, recyclerView.getContext());
+                                        recyclerView.setAdapter(dataAdapter);
+//                                        dataListAdapter.addFooter();
                                     } else {
                                         isLastPage = true;
                                     }
@@ -281,6 +321,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
                 if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                         && firstVisibleItemPosition >= 0
                         && totalItemCount >= PAGE_SIZE) {
+//                    dataListAdapter.removeFooter();
                     loadMoreItems();
                 }
             }
@@ -299,6 +340,7 @@ public class DataFragment extends Fragment implements BaseAdapter.OnItemClickLis
         super.onDestroyView();
         removeListeners();
         currentPage = 1;
+        unbinder.unbind();
     }
 
 

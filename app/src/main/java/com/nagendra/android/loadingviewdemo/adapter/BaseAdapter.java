@@ -1,8 +1,11 @@
 package com.nagendra.android.loadingviewdemo.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.nagendra.android.loadingviewdemo.fragment.DataFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     // region Member Variables
     protected List<T> items;
     protected OnItemClickListener onItemClickListener;
-    protected OnReloadClickListener onReloadClickListener;
+    protected DataFragment onReloadClickListener;
     protected boolean isFooterAdded = false;
     // endregion
 
@@ -110,11 +113,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
     public void add(T item) {
+        Log.d("item_list",item.toString());
         items.add(item);
         notifyItemInserted(items.size() - 1);
     }
 
     public void addAll(List<T> items) {
+        Log.d("items_list",items.toString());
         for (T item : items) {
             add(item);
         }
@@ -145,13 +150,13 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
 
     public void removeFooter() {
         isFooterAdded = false;
-
         int position = items.size() - 1;
         T item = getItem(position);
 
         if (item != null) {
             items.remove(position);
             notifyItemRemoved(position);
+            notifyDataSetChanged();
         }
     }
 
@@ -172,7 +177,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         this.onItemClickListener = onItemClickListener;
     }
 
-    public void setOnReloadClickListener(OnReloadClickListener onReloadClickListener) {
+    public void setOnReloadClickListener(DataFragment onReloadClickListener) {
         this.onReloadClickListener = onReloadClickListener;
     }
     // endregion

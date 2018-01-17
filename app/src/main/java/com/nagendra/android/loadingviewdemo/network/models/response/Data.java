@@ -557,6 +557,80 @@ public class Data extends ImageMap {
         this.photos = photos;
     }
 
+    @Override
+    public String toString() {
+        return "Data{" +
+                "parking='" + parking + '\'' +
+                ", secondaryTitle='" + secondaryTitle + '\'' +
+                ", dateOnly='" + dateOnly + '\'' +
+                ", location='" + location + '\'' +
+                ", deposit='" + deposit + '\'' +
+                ", street='" + street + '\'' +
+                ", forLease='" + forLease + '\'' +
+                ", parkingDesc='" + parkingDesc + '\'' +
+                ", bathroom='" + bathroom + '\'' +
+                ", type='" + type + '\'' +
+                ", city='" + city + '\'' +
+                ", pinCode='" + pinCode + '\'' +
+                ", photoAvailable='" + photoAvailable + '\'' +
+                ", totalFloor='" + totalFloor + '\'' +
+                ", description='" + description + '\'' +
+                ", accomodationTypeDesc='" + accomodationTypeDesc + '\'' +
+                ", propertySize='" + propertySize + '\'' +
+                ", shortUrl='" + shortUrl + '\'' +
+                ", longitude='" + longitude + '\'' +
+                ", gym='" + gym + '\'' +
+                ", sharedAccomodation='" + sharedAccomodation + '\'' +
+                ", shortlistedByLoggedInUser='" + shortlistedByLoggedInUser + '\'' +
+                ", propertyTitle='" + propertyTitle + '\'' +
+                ", ownerName='" + ownerName + '\'' +
+                ", furnishing='" + furnishing + '\'' +
+                ", balconies='" + balconies + '\'' +
+                ", propertyAge='" + propertyAge + '\'' +
+                ", cupBoard='" + cupBoard + '\'' +
+                ", powerBackup='" + powerBackup + '\'' +
+                ", accurateLocation='" + accurateLocation + '\'' +
+                ", adminEvent='" + adminEvent + '\'' +
+                ", floor='" + floor + '\'' +
+                ", amenitiesMap=" + amenitiesMap +
+                ", availableFrom='" + availableFrom + '\'' +
+                ", swimmingPool='" + swimmingPool + '\'' +
+                ", lift='" + lift + '\'' +
+                ", active='" + active + '\'' +
+                ", buildingType='" + buildingType + '\'' +
+                ", localityId='" + localityId + '\'' +
+                ", latitude='" + latitude + '\'' +
+                ", weight='" + weight + '\'' +
+                ", ownerId='" + ownerId + '\'' +
+                ", loanAvailable='" + loanAvailable + '\'' +
+                ", negotiable='" + negotiable + '\'' +
+                ", activationDate='" + activationDate + '\'' +
+                ", id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", facingDesc='" + facingDesc + '\'' +
+                ", aea__=" + aea__ +
+                ", relevance='" + relevance + '\'' +
+                ", rent='" + rent + '\'' +
+                ", detailUrl='" + detailUrl + '\'' +
+                ", furnishingDesc='" + furnishingDesc + '\'' +
+                ", amenities='" + amenities + '\'' +
+                ", society='" + society + '\'' +
+                ", tenantTypeDesc='" + tenantTypeDesc + '\'' +
+                ", typeDesc='" + typeDesc + '\'' +
+                ", leaseType='" + leaseType + '\'' +
+                ", lastUpdateDate='" + lastUpdateDate + '\'' +
+                ", photos=" + photos +
+                ", creationDate='" + creationDate + '\'' +
+                ", waterSupply='" + waterSupply + '\'' +
+                ", propertyType='" + propertyType + '\'' +
+                ", facing='" + facing + '\'' +
+                ", locality='" + locality + '\'' +
+                ", nbLocality='" + nbLocality + '\'' +
+                ", sponsored='" + sponsored + '\'' +
+                ", mass_value='" + mass_value + '\'' +
+                '}';
+    }
+
     private String parking;
 
     private String secondaryTitle;
